@@ -25,9 +25,10 @@ from os.path import expanduser
 
 # Check: Binaries fraction/scenarios
 
-if not ("PEGASE_HOME") in os.environ.keys():
-    warn.warn('Warning: PEGASE_HOME not set, using default. ' + 
-      'You might want to set PEGASE.pegase_dir to a sensible value.')
+if not ("PEGASE_HOME") in list(os.environ.keys()):
+     warn.warn('Warning: PEGASE_HOME not set, using default. ' + 
+       'You might want to set PEGASE.pegase_dir to a sensible value.')
+
 
 pypeg_yorn = {True: 'y', False: 'n'}
 
@@ -67,10 +68,9 @@ except IOError:
 def get_default(key, defaultVal):
     if defaultVal is None:
         defaultVal = ""
-    if key in mydefaults.keys():
-        return type(defaultVal)(mydefaults[key])
+    if key in list(mydefaults.keys()):
+         return type(defaultVal)(mydefaults[key])
     return defaultVal
-
 
 class IMF(object):
     """
@@ -142,9 +142,9 @@ class IMF(object):
                 "powers=%s]") % (
                     ("Custom IMF" if self.number == IMF.CUSTOM else "IMF"),
                     self.number,
-                    [k for k in IMF.__dict__.keys() if IMF.__dict__[k]
-                     == self.number],
-                    self.lower_mass, self.upper_mass, self.powers)
+                    [k for k in list(IMF.__dict__.keys()) if IMF.__dict__[k]
+                      == self.number],
+                     self.lower_mass, self.upper_mass, self.powers)
 
 
 class SNII_ejecta(object):
@@ -275,11 +275,9 @@ class SFR(object):
         return self.__repr__()
 
     def __repr__(self):
-        return "SFR: [type=%d%s, p1=%.4g, p2=%.4g, filename=%s]" \
-            % (self.sfrtype, [k for k in SFR.__dict__.keys() if
+        return "SFR: [type=%d%s, p1=%.4g, p2=%.4g, filename=%s]" %(self.sfrtype, [k for k in SFR.__dict__.keys() if
                               SFR.__dict__[k] == self.sfrtype],
-               self.p1, self.p2, self.filename)
-
+                self.p1, self.p2, self.filename)
 
 class SSP(object):
     """ Parameters to be passed to SSPs.f
@@ -425,7 +423,7 @@ generate colors."""
         filters += self.to_string()
         PEGASE._write_file("filters.dat", filters)
         PEGASE._call_binary("calib", "")
-        print "Filter saved with number %d." % filter_number
+        print("Filter saved with number %d." % filter_number)
 
     def __str__(self):
         return self.__repr__()
@@ -460,14 +458,14 @@ class PEGASE(object):
 
     @classmethod
     def _read_file(cls, filename):
-        with open(PEGASE.pegase_dir + filename, "r") as myfile:
+        with open(PEGASE.pegase_dir + filename, "rb") as myfile:
             contents = myfile.read()
         return contents
 
     @classmethod
     def list_defaults(cls):
-        for key, val in pegdefaults.iteritems():
-            print "%s = %s" % (key, val)
+          for key, val in pegdefaults.items():
+            print("%s = %s" % (key, val))
 
     @classmethod
     def from_file(cls, filename):
@@ -564,14 +562,14 @@ class PEGASE(object):
         try:
             result = PEGASE._call_binary('SSPs', self._get_ssps_string())
         except Exception as e:
-            print e
+            print(e)
             if custom_IMF:
                 PEGASE._write_file("list_IMFs.dat", original_IMFs)
                 try:
                     os.remove(custom_IMF_file)
                 except OSError as er:
-                    print "Error cleanup: can't remove " + custom_IMF_file
-                    print er
+                    print("Error cleanup: can't remove " + custom_IMF_file)
+                    print(er)
             raise e
 
         # check it worked
@@ -591,8 +589,8 @@ class PEGASE(object):
             try:
                 os.remove(custom_IMF_file)
             except OSError as er:
-                print "Cleanup: can't remove " + custom_IMF_file
-                print er
+                print("Cleanup: can't remove " + custom_IMF_file)
+                print(er)
         return True
 
     def generateScenarios(self):
@@ -705,7 +703,7 @@ class PEGASE(object):
                 break
             sleep(0.1)
             blink = not blink
-        print ""
+        print( "")
         return True
 
     def _get_ssps_string(self):
@@ -788,7 +786,8 @@ class PEGASE(object):
         # Spawns fortran binary and sends inputs via a pipe
         p = Popen([PEGASE.pegase_dir + name], stdout=PIPE, stdin=PIPE,
                   stderr=STDOUT, cwd=PEGASE.pegase_dir)
-        stdout = p.communicate(input=inputs)
+        print(inputs)
+        stdout = p.communicate(input=inputs.encode())
         # p.stdin.close()
         # p.communicate() p.wait()
         return (p.returncode, str(stdout))
@@ -905,7 +904,7 @@ class PEGASE(object):
         block_length = lines_end - datastart + 2
 
         columns.extend(" ".join(spectradata_string[datastart:lines_end + 1]).split())
-        indices = range(len(columns))
+        indices = list(range(len(columns)))
 
         if cols is not None:
             if not 'time' in cols:
@@ -1053,7 +1052,7 @@ class PEGASE(object):
         try:
             os.remove(PEGASE.pegase_dir + self.name + file_suffix)
             if not silent:
-                print "Removed %s" % (self.name + file_suffix)
+                print("Removed %s" % (self.name + file_suffix))
         except OSError:  # as err:
             pass
 
